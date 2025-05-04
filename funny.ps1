@@ -25,6 +25,7 @@ Set-Content -Path $trayScriptPath -Value $trayScriptContent
 
 $speechScriptContent = @'
 $sirenPath = "$env:TEMP\siren.wav"
+
 if (-Not (Test-Path $sirenPath)) {
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/KateTheStargazer/funny/main/siren.wav" -OutFile $sirenPath
 }

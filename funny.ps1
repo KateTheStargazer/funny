@@ -24,11 +24,51 @@ $trayScriptPath = "$PWD\tray.ps1"
 Set-Content -Path $trayScriptPath -Value $trayScriptContent
 
 $speechScriptContent = @'
+Add-Type -TypeDefinition @"
+using System;
+using System.Media;
+using System.IO;
+
+public class ToneGenerator {
+    public static void PlayTone(int frequency, int durationMs) {
+        int sampleRate = 44100;
+        int samples = (int)((sampleRate * durationMs) / 1000.0);
+        MemoryStream ms = new MemoryStream();
+        BinaryWriter bw = new BinaryWriter(ms);
+
+        // WAV header
+        int byteRate = sampleRate * 2;
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+        bw.Write(36 + samples * 2);
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));
+        bw.Write(16);
+        bw.Write((short)1);
+        bw.Write((short)1);
+        bw.Write(sampleRate);
+        bw.Write(byteRate);
+        bw.Write((short)2);
+        bw.Write((short)16);
+        bw.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+        bw.Write(samples * 2);
+
+        double amplitude = 32760;
+        double angle = 2 * Math.PI * frequency / sampleRate;
+        for (int i = 0; i < samples; i++) {
+            short sample = (short)(amplitude * Math.Sin(angle * i));
+            bw.Write(sample);
+        }
+
+        ms.Position = 0;
+        SoundPlayer player = new SoundPlayer(ms);
+        player.PlaySync();
+    }
+}
+"@
+
 while ($true) {
-    [console]::Beep(8000, 10)
+    [ToneGenerator]::PlayTone(8000, 1000)
 }
 '@
-
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent
 

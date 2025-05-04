@@ -24,23 +24,18 @@ $trayScriptPath = "$PWD\tray.ps1"
 Set-Content -Path $trayScriptPath -Value $trayScriptContent
 
 $speechScriptContent = @'
-Function Play-SirenLoop {
-    $sirenPath = "$env:TEMP\siren.mp3"
-    if (-Not (Test-Path $sirenPath)) {
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/KateTheStargazer/funny/main/siren.mp3" -OutFile $sirenPath
-    }
-
-    $player = New-Object -ComObject WMPlayer.OCX
-    $player.settings.setMode("loop", $true)
-    $player.URL = $sirenPath
-    $player.controls.play()
-
-    while ($true) {
-        Start-Sleep -Seconds 1
-    }
+$sirenPath = "$env:TEMP\siren.mp3"
+if (-Not (Test-Path $sirenPath)) {
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/KateTheStargazer/funny/main/siren.mp3" -OutFile $sirenPath
 }
 
-Play-SirenLoop
+$player = New-Object -ComObject WMPlayer.OCX
+$player.URL = $sirenPath
+$player.controls.play()
+
+while ($player.playState -ne 1) {
+    Start-Sleep -Milliseconds 500
+}
 '@
 
 

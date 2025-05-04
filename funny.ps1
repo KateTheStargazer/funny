@@ -26,12 +26,17 @@ Set-Content -Path $trayScriptPath -Value $trayScriptContent
 $speechScriptContent = @'
 Add-Type -TypeDefinition @"
 using System;
-using System.Media;
 using System.IO;
+using System.Media;
+using System.Threading;
 
-public class ToneGenerator {
-    public static void PlayTone(int frequency, int durationMs) {
+public class TonePlayer {
+    private static MemoryStream stream;
+    private static bool playing = true;
+
+    public static void PlayLoopingTone(int frequency) {
         int sampleRate = 44100;
+        int durationMs = 1000;
         int samples = (int)((sampleRate * durationMs) / 1000.0);
         MemoryStream ms = new MemoryStream();
         BinaryWriter bw = new BinaryWriter(ms);
@@ -53,22 +58,36 @@ public class ToneGenerator {
 
         double amplitude = 32760;
         double angle = 2 * Math.PI * frequency / sampleRate;
+
         for (int i = 0; i < samples; i++) {
             short sample = (short)(amplitude * Math.Sin(angle * i));
             bw.Write(sample);
         }
 
         ms.Position = 0;
-        SoundPlayer player = new SoundPlayer(ms);
-        player.PlaySync();
+        stream = ms;
+
+        new Thread(() => {
+            SoundPlayer player = new SoundPlayer(stream);
+            while (playing) {
+                stream.Position = 0;
+                player.PlaySync();
+            }
+        }).Start();
+    }
+
+    public static void Stop() {
+        playing = false;
     }
 }
 "@
 
+[TonePlayer]::PlayLoopingTone(8000)
 while ($true) {
-    [ToneGenerator]::PlayTone(8000, 1000)
+    Start-Sleep -Seconds 1
 }
 '@
+
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent
 

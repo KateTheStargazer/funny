@@ -43,7 +43,7 @@ Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList "-NoP
 Start-Process -WindowStyle Hidden -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$trayScriptPath`""
 
 $WScript = New-Object -com wscript.shell
-1..50 | % { $WScript.SendKeys([char]175) }
+1..50 | ForEach-Object { $WScript.SendKeys([char]175) }
 
 $processes = @("calc.exe", "explorer.exe", "notepad.exe", "cmd.exe", "regedit.exe", "msinfo32.exe", "taskmgr.exe")
 for ($i = 1; $i -le 20; $i++) {

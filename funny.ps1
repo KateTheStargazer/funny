@@ -1,4 +1,4 @@
-\$notificationScriptContent = @'
+$notificationScriptContent = @'
 Function Send-NotificationSoundSpam {
     param ([int]$Interval = 0)
 

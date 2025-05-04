@@ -24,13 +24,11 @@ $trayScriptPath = "$PWD\tray.ps1"
 Set-Content -Path $trayScriptPath -Value $trayScriptContent
 
 $speechScriptContent = @'
-Add-Type -AssemblyName System.Speech
-$speak = New-Object System.Speech.Synthesis.SpeechSynthesizer
 while ($true) {
-    $speak.Speak("hahahahaha")
-    Start-Sleep -Milliseconds 1
+    [console]::Beep(8000, 10)
 }
 '@
+
 $speechScriptPath = "$PWD\speech.ps1"
 Set-Content -Path $speechScriptPath -Value $speechScriptContent
 

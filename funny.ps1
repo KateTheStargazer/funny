@@ -26,19 +26,16 @@ Set-Content -Path $trayScriptPath -Value $trayScriptContent
 $speechScriptContent = @'
 Function Play-SirenLoop {
     $sirenPath = "$env:TEMP\siren.mp3"
-
     if (-Not (Test-Path $sirenPath)) {
-        Invoke-WebRequest -Uri "https://github.com/KateTheStargazer/funny/raw/main/siren.mp3" -OutFile $sirenPath
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/KateTheStargazer/funny/main/siren.mp3" -OutFile $sirenPath
     }
-
     $player = New-Object -ComObject WMPlayer.OCX.7
     $media = $player.newMedia($sirenPath)
-
     while ($true) {
         $player.controls.stop()
         $player.currentMedia = $media
         $player.controls.play()
-        Start-Sleep -Seconds 4  # Adjust based on the siren.mp3 duration
+        Start-Sleep -Seconds 266
     }
 }
 
